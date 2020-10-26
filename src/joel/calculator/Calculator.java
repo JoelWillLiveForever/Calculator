@@ -363,11 +363,6 @@ public final class Calculator {
         while (tokenizer.hasMoreTokens()) {
             token = tokenizer.nextToken();
 
-            System.out.println("\nTOKEN: " + token);
-            System.out.println("PREVIOUS: " + previous);
-            System.out.println("NUMBERS: " + mNumbers.toString());
-            System.out.println("OPERATIONS: " + mOperations.toString());
-
             // is Delimiter
             if (isDelimiter(token)) {
                 if (token.equals(mTokensStrings.getOpenBracket())) {
@@ -443,15 +438,9 @@ public final class Calculator {
             previous = token;
         }
 
-        System.out.println("\nNUMBERS: " + mNumbers.toString());
-        System.out.println("OPERATIONS: " + mOperations.toString());
-
         while (!mOperations.isEmpty()) {
             calculate();
         }
-
-        System.out.println("\nNUMBERS: " + mNumbers.toString());
-        System.out.println("OPERATIONS: " + mOperations.toString());
 
         if (brackets != 0) {
             mErrorCode = MyError.ERROR_BRACKETS_ARE_NOT_MATCHED;
