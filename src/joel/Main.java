@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         Configuration.getInstance().setRadian(true);
-        String expression = "sin(45)";
+        String expression = "";
         Calculator calculator = new Calculator(expression);
 
         // speed test
@@ -15,6 +15,6 @@ public class Main {
         System.out.println(calculator.getAnswer());
         time = System.nanoTime() - time;
 
-        System.out.printf("Elapsed %,9.3f ms\n", time / 1_000_000.0);
+        System.out.printf("Time: %,9.3f ms\n", time / 1_000_000.0);
     }
 }

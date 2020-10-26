@@ -102,7 +102,7 @@ public final class Calculator {
     }
 
     private boolean isNumber(String token) {
-        if (token.equals(mTokensStrings.getPi()) || token.equals(mTokensStrings.getEuler())) return true;
+        if (token.equals(mTokensStrings.getPi()) || token.equals(mTokensStrings.getEuler()) || token.equals(mTokensStrings.getInfinity())) return true;
         return !isDelimiter(token) && !isFunction(token) && !token.equals(mTokensStrings.getUnaryMinus());
     }
 
@@ -363,7 +363,8 @@ public final class Calculator {
         while (tokenizer.hasMoreTokens()) {
             token = tokenizer.nextToken();
 
-            System.out.println("\n\nSTART");
+            System.out.println("\nTOKEN: " + token);
+            System.out.println("PREVIOUS: " + previous);
             System.out.println("NUMBERS: " + mNumbers.toString());
             System.out.println("OPERATIONS: " + mOperations.toString());
 
@@ -373,12 +374,12 @@ public final class Calculator {
                     brackets++;
                     tryInsertNumericFactor(previous);
                     mOperations.push(mTokensStrings.getOpenBracket());
-                } else if (token.equals(mTokensStrings.getCloseBracket())) {
+                } else if (token.equals(mTokensStrings.getCloseBracket()) || token.equals(mTokensStrings.getSeparator())) {
                     brackets--;
                     while (!mOperations.isEmpty() && !mOperations.peek().equals(mTokensStrings.getOpenBracket())) {
                         calculate();
                     }
-                    mOperations.pop();
+                    mOperations.pop();  // delete open bracket
                 }
             }
 
@@ -403,6 +404,11 @@ public final class Calculator {
                     }
                 }
                 mOperations.push(token);
+
+                if (token.equals(mTokensStrings.getLog())) {
+                    mOperations.push(mTokensStrings.getOpenBracket());
+                    brackets++;
+                }
             }
 
             // is Number
@@ -412,7 +418,10 @@ public final class Calculator {
                     token = String.valueOf(PI);
                 } else if (token.equals(mTokensStrings.getEuler())) {
                     token = String.valueOf(E);
+                } else if (token.equals(mTokensStrings.getInfinity())) {
+                    token = String.valueOf(Double.POSITIVE_INFINITY);
                 }
+
                 if (isContainsFunction(token)) {
                     int len = getFunctionLength(token);
                     String number = token.substring(0, token.length() - len);
@@ -432,18 +441,16 @@ public final class Calculator {
             }
 
             previous = token;
-
-            System.out.println("\n\nEND");
-            System.out.println("NUMBERS: " + mNumbers.toString());
-            System.out.println("OPERATIONS: " + mOperations.toString());
         }
+
+        System.out.println("\nNUMBERS: " + mNumbers.toString());
+        System.out.println("OPERATIONS: " + mOperations.toString());
 
         while (!mOperations.isEmpty()) {
             calculate();
         }
 
-        System.out.println("\n\nLAST END");
-        System.out.println("NUMBERS: " + mNumbers.toString());
+        System.out.println("\nNUMBERS: " + mNumbers.toString());
         System.out.println("OPERATIONS: " + mOperations.toString());
 
         if (brackets != 0) {
