@@ -3,6 +3,12 @@
     <words>
       <w>acos</w>
       <w>acosh</w>
+      <w>arccos</w>
+      <w>arccosh</w>
+      <w>arcsin</w>
+      <w>arcsinh</w>
+      <w>arctan</w>
+      <w>arctanh</w>
       <w>asin</w>
       <w>asinh</w>
       <w>atan</w>

@@ -3,30 +3,25 @@ package joel.calculator;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import static java.lang.Math.*;
+
 public final class Calculator {
     private final Stack<String> mNumbers = new Stack<>();
     private final Stack<String> mOperations = new Stack<>();
 
-    private Token mTokens;
-    private String mExpression;
-    private Configuration mConfig;
+    private byte mErrorCode = MyError.NO_ERROR;
+    private byte brackets = 0;
+
+    private String mExpression = "";
+    private final Token mTokensStrings = Token.getInstance();
+    private final Configuration mConfig = Configuration.getInstance();
 
     public Calculator() {
-        mExpression = "";
-        mTokens = new Token();
-        mConfig = new Configuration();
+        // void
     }
 
     public Calculator(String expression) {
         mExpression = expression;
-        mTokens = new Token();
-        mConfig = new Configuration();
-    }
-
-    public Calculator(String expression, Token tokens, Configuration config) {
-        mExpression = expression;
-        mTokens = tokens;
-        mConfig = config;
     }
 
     public Stack<String> getNumbers() {
@@ -37,12 +32,8 @@ public final class Calculator {
         return mOperations;
     }
 
-    public Token getTokens() {
-        return mTokens;
-    }
-
-    public void setTokens(Token tokens) {
-        mTokens = tokens;
+    public Token getTokensStrings() {
+        return mTokensStrings;
     }
 
     public String getExpression() {
@@ -57,53 +48,44 @@ public final class Calculator {
         return mConfig;
     }
 
-    public void setConfig(Configuration config) {
-        mConfig = config;
-    }
-
     public String getAnswer() {
-        if (!mConfig.isErrorCheckerEnabled()) {
-            try {
-                return start();
-            } catch (Exception exc) {
-                return exc.getMessage();
-            }
-        } else {
+        try {
             return start();
+        } catch (Exception exc) {
+            if (mConfig.isErrorCheckerEnabled()) {
+                if (brackets != 0) {
+                    mErrorCode = MyError.ERROR_BRACKETS_ARE_NOT_MATCHED;
+                }
+                System.out.println(exc.toString());
+
+                MyError myError = MyError.getInstance();
+                myError.setErrorCode(mErrorCode);
+
+                return myError.getDescription();
+            }
+            return "";
         }
     }
 
-    public String getAnswer(String expression) {
-        mExpression = expression;
-        return getAnswer();
-    }
-
-    public String getAnswer(String expression, Token tokens, Configuration config) {
-        mExpression = expression;
-        mTokens = tokens;
-        mConfig = config;
-        return getAnswer();
-    }
-
     private int getPriority(String token) {
-        if (token.equals(mTokens.getPlus()) || token.equals(mTokens.getMinus()))
+        if (token.equals(mTokensStrings.getPlus()) || token.equals(mTokensStrings.getMinus()))
             return 1;
-        if (token.equals(mTokens.getMultiply()) || token.equals(mTokens.getDivide()) || token.equals(mTokens.getOldMultiply()) || token.equals(mTokens.getOldDivide()))
+        if (token.equals(mTokensStrings.getMultiply()) || token.equals(mTokensStrings.getDivide()) || token.equals(mTokensStrings.getOldMultiply()) || token.equals(mTokensStrings.getOldDivide()))
             return 2;
-        if (token.equals(mTokens.getPower()))
+        if (token.equals(mTokensStrings.getPower()))
             return 3;
-        if (token.equals(mTokens.getUnaryMinus()))
+        if (token.equals(mTokensStrings.getUnaryMinus()))
             return 4;
-        if (token.equals(mTokens.getFactorial()) || token.equals(mTokens.getPercent()))
+        if (token.equals(mTokensStrings.getFactorial()) || token.equals(mTokensStrings.getPercent()))
             return 5;
-        if (token.equals(mTokens.getLg()) || token.equals(mTokens.getLn()) || token.equals(mTokens.getLog()) || token.equals(mTokens.getExp()) || token.equals(mTokens.getRoot()) || token.equals(mTokens.getSin()) || token.equals(mTokens.getCos()) || token.equals(mTokens.getTan()) || token.equals(mTokens.getSinh()) || token.equals(mTokens.getCosh()) || token.equals(mTokens.getTanh()) || token.equals(mTokens.getAsinh()) || token.equals(mTokens.getAcosh()) || token.equals(mTokens.getAtanh()))
+        if (token.equals(mTokensStrings.getLg()) || token.equals(mTokensStrings.getLn()) || token.equals(mTokensStrings.getLog()) || token.equals(mTokensStrings.getExp()) || token.equals(mTokensStrings.getRoot()) || token.equals(mTokensStrings.getSin()) || token.equals(mTokensStrings.getCos()) || token.equals(mTokensStrings.getTan()) || token.equals(mTokensStrings.getSinh()) || token.equals(mTokensStrings.getCosh()) || token.equals(mTokensStrings.getTanh()) || token.equals(mTokensStrings.getAsinh()) || token.equals(mTokensStrings.getAcosh()) || token.equals(mTokensStrings.getAtanh()))
             return 6;
         return 0;
     }
 
     private boolean isFunction(String token) {
         boolean isTrue = false;
-        for (String element : mTokens.getFunctions())
+        for (String element : mTokensStrings.getFunctions())
             if (element.equals(token)) {
                 isTrue = true;
                 break;
@@ -112,39 +94,39 @@ public final class Calculator {
     }
 
     private boolean isOperation(String token) {
-        return mTokens.getOperations().contains(token);
+        return mTokensStrings.getOperations().contains(token);
     }
 
     private boolean isDelimiter(String token) {
-        return mTokens.getDelimiters().contains(token);
+        return mTokensStrings.getDelimiters().contains(token);
     }
 
     private boolean isNumber(String token) {
-        if (token.equals(mTokens.getPi()) || token.equals(mTokens.getEuler())) return true;
-        return !isDelimiter(token) && !isFunction(token) && !token.equals(mTokens.getUnaryMinus());
+        if (token.equals(mTokensStrings.getPi()) || token.equals(mTokensStrings.getEuler())) return true;
+        return !isDelimiter(token) && !isFunction(token) && !token.equals(mTokensStrings.getUnaryMinus());
     }
 
     private boolean isUnaryMinus(String previous) {
-        return (isDelimiter(previous) && !previous.equals(mTokens.getCloseBracket()) && !previous.equals(mTokens.getFactorial()) && !previous.equals(mTokens.getPercent()) && !previous.equals(mTokens.getPi()) && !previous.equals(mTokens.getEuler())) || previous.equals("") || previous.equals(mTokens.getUnaryMinus());
+        return (isDelimiter(previous) && !previous.equals(mTokensStrings.getCloseBracket()) && !previous.equals(mTokensStrings.getFactorial()) && !previous.equals(mTokensStrings.getPercent()) && !previous.equals(mTokensStrings.getPi()) && !previous.equals(mTokensStrings.getEuler())) || previous.equals("") || previous.equals(mTokensStrings.getUnaryMinus());
     }
 
     private void tryInsertNumericFactor(String previous) {
-        if (previous.equals(mTokens.getCloseBracket()) || isNumber(previous) || previous.equals(mTokens.getFactorial()) || previous.equals(mTokens.getPercent())) {
-            while (mNumbers.size() >= 2 && !mOperations.isEmpty() && getPriority(mTokens.getMultiply()) <= getPriority(mOperations.peek())) {
+        if (previous.equals(mTokensStrings.getCloseBracket()) || isNumber(previous) || previous.equals(mTokensStrings.getFactorial()) || previous.equals(mTokensStrings.getPercent())) {
+            while (mNumbers.size() >= 2 && !mOperations.isEmpty() && getPriority(mTokensStrings.getMultiply()) <= getPriority(mOperations.peek())) {
                 calculate();
             }
-            mOperations.add(mTokens.getMultiply());
+            mOperations.add(mTokensStrings.getMultiply());
         }
     }
 
     private boolean isContainsFunction(String token) {
-        for (String function : mTokens.getFunctions())
+        for (String function : mTokensStrings.getFunctions())
             if (token.contains(function)) return true;
         return false;
     }
 
     private int getFunctionLength(String token) {
-        for (String function : mTokens.getFunctions())
+        for (String function : mTokensStrings.getFunctions())
             if (token.contains(function)) return function.length();
         return -1;
     }
@@ -153,7 +135,7 @@ public final class Calculator {
         if (l > r) return 1.0d;
         if (l == r) return l;
         if (r - l == 1.0d) return l * r;
-        double m = Math.floor((l + r) / 2.0d);
+        double m = floor((l + r) / 2.0d);
         return fastProdTree(l, m) * fastProdTree(m + 1.0d, r);
     }
 
@@ -166,180 +148,234 @@ public final class Calculator {
 
     private void calculate() {
         double result = 0.0d;
-        if (mOperations.peek().equals(mTokens.getPlus())) {
-            // plus
+        if (mOperations.peek().equals(mTokensStrings.getPlus())) {  // plus protected
             double second = Double.parseDouble(mNumbers.pop());
             double first = Double.parseDouble(mNumbers.pop());
             result = first + second;
-        } else if (mOperations.peek().equals(mTokens.getMinus())) {
-            // minus
+        } else if (mOperations.peek().equals(mTokensStrings.getMinus())) {  // minus protected
             double second = Double.parseDouble(mNumbers.pop());
             double first = Double.parseDouble(mNumbers.pop());
             result = first - second;
-        } else if (mOperations.peek().equals(mTokens.getMultiply()) || mOperations.peek().equals(mTokens.getOldMultiply())) {
-            // multiply
-            double second = Double.parseDouble(mNumbers.pop());
+        } else if (mOperations.peek().equals(mTokensStrings.getMultiply()) || mOperations.peek().equals(mTokensStrings.getOldMultiply())) {
+            double second = Double.parseDouble(mNumbers.pop()); // multiply protected
             double first = Double.parseDouble(mNumbers.pop());
             result = first * second;
-        } else if (mOperations.peek().equals(mTokens.getDivide()) || mOperations.peek().equals(mTokens.getOldDivide())) {
-            // divide
-            double second = Double.parseDouble(mNumbers.pop());
+        } else if (mOperations.peek().equals(mTokensStrings.getDivide()) || mOperations.peek().equals(mTokensStrings.getOldDivide())) {
+            double second = Double.parseDouble(mNumbers.pop()); // divide protected
+
+            if (second == 0.0d) {
+                mErrorCode = MyError.ERROR_DIVISION_BY_ZERO;
+                throw new ArithmeticException();
+            }
+
             double first = Double.parseDouble(mNumbers.pop());
             result = first / second;
-        } else if (mOperations.peek().equals(mTokens.getPower())) {
-            // power
+        } else if (mOperations.peek().equals(mTokensStrings.getPower())) {  // power protected
             double second = Double.parseDouble(mNumbers.pop());
             double first = Double.parseDouble(mNumbers.pop());
-            result = Math.pow(first, second);
-        } else if (mOperations.peek().equals(mTokens.getLog())) {
-            // log
+            result = pow(first, second);
+        } else if (mOperations.peek().equals(mTokensStrings.getLog())) {    // log protected
             double second = Double.parseDouble(mNumbers.pop());
             double first = Double.parseDouble(mNumbers.pop());
-            result = Math.log10(second) / Math.log10(first);
-        } else if (mOperations.peek().equals(mTokens.getFactorial())) {
-            // factorial
+
+            if (first == 1.0d || first <= 0.0d || second <= 0.0d) {
+                mErrorCode = MyError.ERROR_LOG_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
+            }
+
+            result = log10(second) / log10(first);
+        } else if (mOperations.peek().equals(mTokensStrings.getFactorial())) {  // factorial protected
             double number = Double.parseDouble(mNumbers.pop());
+
+            if (number < 0.0d) {
+                mErrorCode = MyError.ERROR_NEGATIVE_ARGUMENT_FOR_FACTORIAL;
+                throw new ArithmeticException();
+            }
+
             result = fastFactTree(number);
-        } else if (mOperations.peek().equals(mTokens.getPercent())) {
-            // percent
+        } else if (mOperations.peek().equals(mTokensStrings.getPercent())) {    // percent protected
             double number = Double.parseDouble(mNumbers.pop());
             result = number / 100.0d;
-        } else if (mOperations.peek().equals(mTokens.getSin())) {
-            // sin
+        } else if (mOperations.peek().equals(mTokensStrings.getSin())) {    // sin protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (mConfig.isRadian()) {
+                number = toRadians(number);
             }
-            result = Math.sin(number);
-        } else if (mOperations.peek().equals(mTokens.getCos())) {
-            // cos
+            result = sin(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getCos())) {    // cos protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (mConfig.isRadian()) {
+                number = toRadians(number);
             }
-            result = Math.cos(number);
-        } else if (mOperations.peek().equals(mTokens.getTan())) {
-            // tan
+            result = cos(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getTan())) {    // tan protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (number == (PI / 2.0d) || number == (PI / 2.0d + PI)) {
+                mErrorCode = MyError.ERROR_TAN_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
             }
-            result = Math.tan(number);
-        } else if (mOperations.peek().equals(mTokens.getAsin())) {
-            // asin
+
+            if (mConfig.isRadian()) {
+                number = toRadians(number);
+            }
+            result = tan(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getAsin())) {   // arcsin protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (abs(number) > 1.0d) {
+                mErrorCode = MyError.ERROR_ARCSIN_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
             }
-            result = Math.asin(number);
-        } else if (mOperations.peek().equals(mTokens.getAcos())) {
-            // acos
+
+            result = asin(number);
+
+            if (mConfig.isRadian()) {
+                result = toDegrees(result);
+            }
+        } else if (mOperations.peek().equals(mTokensStrings.getAcos())) {   // arccos protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (abs(number) > 1.0d) {
+                mErrorCode = MyError.ERROR_ARCCOS_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
             }
-            result = Math.acos(number);
-        } else if (mOperations.peek().equals(mTokens.getAtan())) {
-            // atan
+
+            result = acos(number);
+
+            if (mConfig.isRadian()) {
+                result = toDegrees(result);
+            }
+        } else if (mOperations.peek().equals(mTokensStrings.getAtan())) {   // arctan protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            result = atan(number);
+
+            if (mConfig.isRadian()) {
+                result = toDegrees(result);
             }
-            result = Math.atan(number);
-        } else if (mOperations.peek().equals(mTokens.getSinh())) {
-            // sinh
+        } else if (mOperations.peek().equals(mTokensStrings.getSinh())) {   // sinh protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (mConfig.isRadian()) {
+                number = toRadians(number);
             }
-            result = Math.sinh(number);
-        } else if (mOperations.peek().equals(mTokens.getCosh())) {
-            // cosh
+            result = sinh(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getCosh())) {   // cosh protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (mConfig.isRadian()) {
+                number = toRadians(number);
             }
-            result = Math.cosh(number);
-        } else if (mOperations.peek().equals(mTokens.getTanh())) {
-            // tanh
+            result = cosh(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getTanh())) {   // tanh protected
+            double number = Double.parseDouble(mNumbers.pop());
+            if (mConfig.isRadian()) {
+                number = toRadians(number);
+            }
+            result = tanh(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getAsinh())) {  // arcsinh protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            result = log(number + sqrt((number * number) + 1.0d));
+
+            if (mConfig.isRadian()) {
+                result = toDegrees(result);
             }
-            result = Math.tanh(number);
-        } else if (mOperations.peek().equals(mTokens.getAsinh())) {
-            // asinh
+        } else if (mOperations.peek().equals(mTokensStrings.getAcosh())) {  // arccosh protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (number < 1.0d) {
+                mErrorCode = MyError.ERROR_ARCCOSH_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
             }
-            result = Math.log(number + Math.sqrt((number * number) + 1));
-        } else if (mOperations.peek().equals(mTokens.getAcosh())) {
-            // acosh
+
+            result = log(number + sqrt((number * number) - 1.0d));
+
+            if (mConfig.isRadian()) {
+                result = toDegrees(result);
+            }
+        } else if (mOperations.peek().equals(mTokensStrings.getAtanh())) {  // arctanh protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (abs(number) >= 1.0d) {
+                // If argument "number" is "x", then: (it's should be) |x| < 1
+                mErrorCode = MyError.ERROR_ARCTANH_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
             }
-            result = Math.log(number + Math.sqrt((number * number) - 1));
-        } else if (mOperations.peek().equals(mTokens.getAtanh())) {
-            // atanh
+
+            result = 0.5d * log((1.0d + number) / (1.0d - number));
+
+            if (mConfig.isRadian()) {
+                result = toDegrees(result);
+            }
+        } else if (mOperations.peek().equals(mTokensStrings.getExp())) {    // exp protected
+            double number = Double.parseDouble(mNumbers.pop());
+            result = exp(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getRoot())) {   // root (sqrt) protected
             double number = Double.parseDouble(mNumbers.pop());
 
-            if (!mConfig.isRadian()) {
-                number = Math.toRadians(number);
+            if (number < 0.0d) {
+                mErrorCode = MyError.ERROR_ROOT_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
             }
-            result = 0.5d * Math.log((1 + number) / (1 - number));
-        } else if (mOperations.peek().equals(mTokens.getExp())) {
-            // exp
+
+            result = sqrt(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getLn())) { // ln protected
             double number = Double.parseDouble(mNumbers.pop());
-            result = Math.exp(number);
-        } else if (mOperations.peek().equals(mTokens.getRoot())) {
-            // root (sqrt)
+
+            if (number <= 0.0d) {
+                mErrorCode = MyError.ERROR_LN_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
+            }
+
+            result = log(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getLg())) { // lg protected
             double number = Double.parseDouble(mNumbers.pop());
-            result = Math.sqrt(number);
-        } else if (mOperations.peek().equals(mTokens.getLn())) {
-            // ln
-            double number = Double.parseDouble(mNumbers.pop());
-            result = Math.log(number);
-        } else if (mOperations.peek().equals(mTokens.getLg())) {
-            // lg
-            double number = Double.parseDouble(mNumbers.pop());
-            result = Math.log10(number);
-        } else if (mOperations.peek().equals(mTokens.getUnaryMinus())) {
-            // unary minus
+
+            if (number <= 0.0d) {
+                mErrorCode = MyError.ERROR_LG_FUNCTION_DEFINITION_AREA;
+                throw new ArithmeticException();
+            }
+
+            result = log10(number);
+        } else if (mOperations.peek().equals(mTokensStrings.getUnaryMinus())) { // unary minus protected
             double number = Double.parseDouble(mNumbers.pop());
             result = -number;
         }
+
+        if (Double.isNaN(result)) {
+            mErrorCode = MyError.ERROR_NOT_A_NUMBER;
+            throw new ArithmeticException();
+        }
+
         mNumbers.push(Double.toString(result));
         mOperations.pop();
     }
 
     private String start() {
         if (mExpression.equals("") || mExpression.length() <= 0) return "";
-        StringTokenizer tokenizer = new StringTokenizer(mExpression, mTokens.getDelimiters(), true);
+        StringTokenizer tokenizer = new StringTokenizer(mExpression, mTokensStrings.getDelimiters(), true);
         String token, previous = "";
 
         while (tokenizer.hasMoreTokens()) {
             token = tokenizer.nextToken();
 
+            System.out.println("\n\nSTART");
+            System.out.println("NUMBERS: " + mNumbers.toString());
+            System.out.println("OPERATIONS: " + mOperations.toString());
+
             // is Delimiter
             if (isDelimiter(token)) {
-                if (token.equals(mTokens.getOpenBracket())) {
+                if (token.equals(mTokensStrings.getOpenBracket())) {
+                    brackets++;
                     tryInsertNumericFactor(previous);
-                    mOperations.push(mTokens.getOpenBracket());
-                } else if (token.equals(mTokens.getCloseBracket())) {
-                    while (!mOperations.isEmpty() && !mOperations.peek().equals(mTokens.getOpenBracket())) {
+                    mOperations.push(mTokensStrings.getOpenBracket());
+                } else if (token.equals(mTokensStrings.getCloseBracket())) {
+                    brackets--;
+                    while (!mOperations.isEmpty() && !mOperations.peek().equals(mTokensStrings.getOpenBracket())) {
                         calculate();
                     }
                     mOperations.pop();
@@ -349,19 +385,19 @@ public final class Calculator {
             // is Operation or Function
             if (isOperation(token) || isFunction(token)) {
                 if (mOperations.isEmpty()) {
-                    if (token.equals(mTokens.getMinus()) && isUnaryMinus(previous)) {
-                        token = mTokens.getUnaryMinus();
-                    } else if (isFunction(token) && !token.equals(mTokens.getFactorial())) {
+                    if (token.equals(mTokensStrings.getMinus()) && isUnaryMinus(previous)) {
+                        token = mTokensStrings.getUnaryMinus();
+                    } else if (isFunction(token) && !token.equals(mTokensStrings.getFactorial())) {
                         tryInsertNumericFactor(previous);
                     }
                 } else {
                     // operations not empty
-                    if (isFunction(token) && !token.equals(mTokens.getFactorial())) {
+                    if (isFunction(token) && !token.equals(mTokensStrings.getFactorial())) {
                         tryInsertNumericFactor(previous);
-                    } else if (token.equals(mTokens.getMinus()) && isUnaryMinus(previous)) {
-                        token = mTokens.getUnaryMinus();
+                    } else if (token.equals(mTokensStrings.getMinus()) && isUnaryMinus(previous)) {
+                        token = mTokensStrings.getUnaryMinus();
                     }
-                    if (!token.equals(mTokens.getUnaryMinus())) {
+                    if (!token.equals(mTokensStrings.getUnaryMinus())) {
                         while (!mOperations.isEmpty() && getPriority(token) <= getPriority(mOperations.peek()))
                             calculate();
                     }
@@ -372,10 +408,10 @@ public final class Calculator {
             // is Number
             if (isNumber(token)) {
                 tryInsertNumericFactor(previous);
-                if (token.equals(mTokens.getPi())) {
-                    token = String.valueOf(Math.PI);
-                } else if (token.equals(mTokens.getEuler())) {
-                    token = String.valueOf(Math.E);
+                if (token.equals(mTokensStrings.getPi())) {
+                    token = String.valueOf(PI);
+                } else if (token.equals(mTokensStrings.getEuler())) {
+                    token = String.valueOf(E);
                 }
                 if (isContainsFunction(token)) {
                     int len = getFunctionLength(token);
@@ -383,11 +419,11 @@ public final class Calculator {
                     String function = token.substring(token.length() - len);
                     mNumbers.push(number);
 
-                    while (!mOperations.isEmpty() && getPriority(mTokens.getMultiply()) <= getPriority(mOperations.peek())) {
+                    while (!mOperations.isEmpty() && getPriority(mTokensStrings.getMultiply()) <= getPriority(mOperations.peek())) {
                         calculate();
                     }
 
-                    mOperations.push(mTokens.getMultiply());
+                    mOperations.push(mTokensStrings.getMultiply());
                     mOperations.push(function);
                     token = function;
                 } else {
@@ -396,10 +432,23 @@ public final class Calculator {
             }
 
             previous = token;
+
+            System.out.println("\n\nEND");
+            System.out.println("NUMBERS: " + mNumbers.toString());
+            System.out.println("OPERATIONS: " + mOperations.toString());
         }
 
         while (!mOperations.isEmpty()) {
             calculate();
+        }
+
+        System.out.println("\n\nLAST END");
+        System.out.println("NUMBERS: " + mNumbers.toString());
+        System.out.println("OPERATIONS: " + mOperations.toString());
+
+        if (brackets != 0) {
+            mErrorCode = MyError.ERROR_BRACKETS_ARE_NOT_MATCHED;
+            throw new ArithmeticException();
         }
 
         return mNumbers.pop();

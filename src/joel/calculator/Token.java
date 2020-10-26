@@ -1,6 +1,10 @@
 package joel.calculator;
 
 public final class Token {
+    private static Token instance = null;
+
+    private String mInfinity = "∞";
+
     private String mPlus = "+";
     private String mMinus = "-";
 
@@ -53,48 +57,25 @@ public final class Token {
 
     private String mOperations = mPlus + mMinus + mPower + mDivide + mMultiply + mOldDivide + mOldMultiply + mPercent;
 
-    private String mDelimiters = mOperations + mSeparator + mRoot + mPi + mEuler + mOpenBracket + mCloseBracket + mFactorial;
+    private String mDelimiters = mOperations + mSeparator + mRoot + mPi + mEuler + mOpenBracket + mCloseBracket + mFactorial + mInfinity;
 
-    public Token() {
+    private Token() {
         // void
     }
 
-    public Token(String plus, String minus, String power, String divide, String multiply, String oldDivide, String oldMultiply, String lg, String ln, String log, String exp, String sin, String cos, String tan, String sinh, String cosh, String tanh, String asin, String acos, String atan, String asinh, String acosh, String atanh, String euler, String pi, String percent, String root, String separator, String factorial, String openBracket, String closeBracket, String unaryMinus, String[] functions, String operations, String delimiters) {
-        mPlus = plus;
-        mMinus = minus;
-        mPower = power;
-        mDivide = divide;
-        mMultiply = multiply;
-        mOldDivide = oldDivide;
-        mOldMultiply = oldMultiply;
-        mLg = lg;
-        mLn = ln;
-        mLog = log;
-        mExp = exp;
-        mSin = sin;
-        mCos = cos;
-        mTan = tan;
-        mSinh = sinh;
-        mCosh = cosh;
-        mTanh = tanh;
-        mAsin = asin;
-        mAcos = acos;
-        mAtan = atan;
-        mAsinh = asinh;
-        mAcosh = acosh;
-        mAtanh = atanh;
-        mEuler = euler;
-        mPi = pi;
-        mPercent = percent;
-        mRoot = root;
-        mSeparator = separator;
-        mFactorial = factorial;
-        mOpenBracket = openBracket;
-        mCloseBracket = closeBracket;
-        mUnaryMinus = unaryMinus;
-        mFunctions = functions;
-        mOperations = operations;
-        mDelimiters = delimiters;
+    public static Token getInstance() {
+        if (instance == null) {
+            instance = new Token();
+        }
+        return instance;
+    }
+
+    public String getInfinity() {
+        return mInfinity;
+    }
+
+    public void setInfinity(String infinity) {
+        mInfinity = infinity;
     }
 
     public String getUnaryMinus() {
@@ -380,6 +361,6 @@ public final class Token {
     public void commit() {
         mFunctions = new String[]{mSin, mCos, mTan, mLog, mRoot, mFactorial, mLg, mLn, mExp, mAsin, mAcos, mAtan, mSinh, mCosh, mTanh, mAsinh, mAcosh, mAtanh};
         mOperations = mPlus + mMinus + mPower + mDivide + mMultiply + mOldDivide + mOldMultiply + mPercent;
-        mDelimiters = mOperations + mSeparator + mRoot + mPi + mEuler + mOpenBracket + mCloseBracket + mFactorial;
+        mDelimiters = mOperations + mSeparator + mRoot + mPi + mEuler + mOpenBracket + mCloseBracket + mFactorial + mInfinity;
     }
 }

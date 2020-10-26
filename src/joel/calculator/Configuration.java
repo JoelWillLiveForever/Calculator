@@ -1,18 +1,24 @@
 package joel.calculator;
 
 public final class Configuration {
+    private static Configuration instance = null;
+
+    public static final byte MAX_PRECISION = 17;
+    public static final byte MIN_PRECISION = 0;
+
     private byte mPrecision = 7;
     private boolean isRadian = true;
     private boolean isErrorCheckerEnabled = true;
 
-    public Configuration() {
+    private Configuration() {
         // void
     }
 
-    public Configuration(byte precision, boolean isRadian, boolean isErrorCheckerEnabled) {
-        mPrecision = precision;
-        this.isRadian = isRadian;
-        this.isErrorCheckerEnabled = isErrorCheckerEnabled;
+    public static Configuration getInstance() {
+        if (instance == null) {
+            instance = new Configuration();
+        }
+        return instance;
     }
 
     public byte getPrecision() {
@@ -20,16 +26,16 @@ public final class Configuration {
     }
 
     public void setPrecision(byte precision) {
-        if (precision > 17) {
-            precision = 17;
-        } else if (precision < 0) {
-            precision = 0;
+        if (precision > MAX_PRECISION) {
+            precision = MAX_PRECISION;
+        } else if (precision < MIN_PRECISION) {
+            precision = MIN_PRECISION;
         }
         mPrecision = precision;
     }
 
     public boolean isRadian() {
-        return isRadian;
+        return !isRadian;
     }
 
     public void setRadian(boolean radian) {
