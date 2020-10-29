@@ -1,21 +1,29 @@
 package joel;
 
-import joel.calculator.Calculator;
-import joel.calculator.Configuration;
-import joel.calculator.Token;
-
 public class Main {
 
     public static void main(String[] args) {
-        Token mToken = new Token();
-        Configuration mConfig = new Configuration();
-        mConfig.setErrorCheckerEnabled(false);
-        Calculator calculator = new Calculator();
+        long n1 = (long)(Math.random()*Math.log(Math.PI));
+        long n2 = (long)(Math.random()*Math.log(Math.PI));
+        double count = 1e8;
 
-        // speed test
-        long time = System.nanoTime();
-        System.out.println(calculator.getAnswer("(2^8)^3", mToken, mConfig));
-        time = System.nanoTime() - time;
-        System.out.printf("Elapsed %,9.3f ms\n", time/1_000_000.0);
+        long avg1 = 0;
+        for (int i = (int)count; i > 0; i--) {
+            long time = System.nanoTime();
+            long n3 = n1 + n2;
+            time = System.nanoTime() - time;
+            avg1 += time;
+        }
+
+        long avg2 = 0;
+        for (int i = (int)count; i > 0; i--) {
+            long time = System.nanoTime();
+            long n4 = n1 + n2;
+            time = System.nanoTime() - time;
+            avg2 += time;
+        }
+
+        System.out.println("n1 + n2: " + " Avg Time: " + (avg1/count) + " ns");
+        System.out.println("n1 | n2: " + " Avg Time: " + (avg2/count) + " ns");
     }
 }
