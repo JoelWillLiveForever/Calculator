@@ -1,6 +1,5 @@
 package joel.calculator;
 
-import java.util.Hashtable;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
@@ -12,14 +11,14 @@ public final class Calculator {
 
     private final CalculatorTokens mTokens;
     private final CalculatorConfiguration mConfiguration;
+    private final CalculatorHistory mHistory;
 
     private final MyError mError;
 
-    private byte mErrorCode = MyError.NO_ERROR;
-    private byte brackets = 0;
+    private byte mErrorCode;
+    private byte brackets;
 
     private String mExpression;
-    private Hashtable<String, String> mHistory;
 
     public Calculator() {
         mTokens = new CalculatorTokens();
@@ -27,7 +26,9 @@ public final class Calculator {
         mError = new MyError(new CalculatorErrorsDescriptions(), mTokens);
         mExpression = "";
         if (mConfiguration.isHistorySupportEnabled()) {
-            mHistory = new Hashtable<>();
+            mHistory = new CalculatorHistory();
+        } else {
+            mHistory = null;
         }
     }
 
@@ -38,18 +39,22 @@ public final class Calculator {
         mError = new MyError(new CalculatorErrorsDescriptions(), mTokens);
         mExpression = expression;
         if (mConfiguration.isHistorySupportEnabled()) {
-            mHistory = new Hashtable<>();
+            mHistory = new CalculatorHistory();
+        } else {
+            mHistory = null;
         }
     }
 
     // one-time initialization
-    public Calculator(CalculatorTokens tokens, CalculatorConfiguration configuration, CalculatorErrorsDescriptions errorsDescriptions, String expression, Hashtable<String, String> history) {
+    public Calculator(CalculatorTokens tokens, CalculatorConfiguration configuration, CalculatorErrorsDescriptions errorsDescriptions, String expression, CalculatorHistory history) {
         mTokens = tokens;
         mConfiguration = configuration;
         mError = new MyError(errorsDescriptions, mTokens);
         mExpression = expression;
         if (mConfiguration.isHistorySupportEnabled()) {
             mHistory = history;
+        } else {
+            mHistory = null;
         }
     }
 
@@ -61,17 +66,8 @@ public final class Calculator {
         mExpression = expression;
     }
 
-    public Hashtable<String, String> getHistory() {
-        if (mConfiguration.isHistorySupportEnabled()) {
-            return mHistory;
-        }
-        return null;
-    }
-
-    public void setHistory(Hashtable<String, String> history) {
-        if (mConfiguration.isHistorySupportEnabled()) {
-            mHistory = history;
-        }
+    public CalculatorHistory getHistory() {
+        return mHistory;
     }
 
     public String getAnswer() {
