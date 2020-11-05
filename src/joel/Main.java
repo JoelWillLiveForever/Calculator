@@ -1,20 +1,27 @@
 package joel;
 
 import joel.calculator.Calculator;
-import joel.calculator.Configuration;
+
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-        Configuration.getInstance().setRadian(true);
-        String expression = "150!/54224*231sin(45)(5+5)cos(214e)";
-        Calculator calculator = new Calculator(expression);
+        Scanner in = new Scanner(System.in);
+        Calculator calculator = new Calculator();
+        String expression;
+        long time;
 
-        // speed test
-        long time = System.nanoTime();
-        System.out.println("Answer:\t" + calculator.getAnswer());
-        time = System.nanoTime() - time;
+        while (true) {
+            expression = in.nextLine();
+            calculator.setExpression(expression);
 
-        System.out.println("Time:\t" + time / 1_000_000.0d + " ms");
+            // speed test
+            time = System.nanoTime();
+            System.out.println("Answer:\t" + calculator.getAnswer());
+            time = System.nanoTime() - time;
+
+            System.out.println("Time:\t" + time / 1_000_000.0d + " ms");
+        }
     }
 }

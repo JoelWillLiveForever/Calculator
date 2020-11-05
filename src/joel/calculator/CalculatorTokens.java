@@ -1,73 +1,134 @@
 package joel.calculator;
 
-public final class Token {
-    private static Token instance = null;
+public final class CalculatorTokens {
+    private String mInfinity;
 
-    private String mInfinity = "∞";
+    private String mPlus;
+    private String mMinus;
 
-    private String mPlus = "+";
-    private String mMinus = "-";
+    private String mPower;
 
-    private String mPower = "^";
+    private String mDivide;
+    private String mMultiply;
 
-    private String mDivide = "÷";
-    private String mMultiply = "×";
+    private String mOldDivide;
+    private String mOldMultiply;
 
-    private String mOldDivide = "/";
-    private String mOldMultiply = "*";
+    private String mLg;
+    private String mLn;
 
-    private String mLg = "lg";
-    private String mLn = "ln";
+    private String mLog;
+    private String mExp;
 
-    private String mLog = "log";
-    private String mExp = "exp";
+    private String mSin;
+    private String mCos;
+    private String mTan;
 
-    private String mSin = "sin";
-    private String mCos = "cos";
-    private String mTan = "tan";
+    private String mSinh;
+    private String mCosh;
+    private String mTanh;
 
-    private String mSinh = "sinh";
-    private String mCosh = "cosh";
-    private String mTanh = "tanh";
+    private String mAsin;
+    private String mAcos;
+    private String mAtan;
 
-    private String mAsin = "asin";
-    private String mAcos = "acos";
-    private String mAtan = "atan";
+    private String mAsinh;
+    private String mAcosh;
+    private String mAtanh;
 
-    private String mAsinh = "asinh";
-    private String mAcosh = "acosh";
-    private String mAtanh = "atanh";
+    private String mEuler;
+    private String mPi;
 
-    private String mEuler = "e";
-    private String mPi = "π";
+    private String mPercent;
+    private String mRoot;
 
-    private String mPercent = "%";
-    private String mRoot = "√";
+    private String mSeparator;
+    private String mFactorial;
+    private String mOpenBracket;
+    private String mCloseBracket;
+    private String mUnaryMinus;
 
-    private String mSeparator = ";";
-    private String mFactorial = "!";
+    private String[] mFunctions;
 
-    private String mOpenBracket = "(";
+    private String mOperations;
+    private String mDelimiters;
 
-    private String mCloseBracket = ")";
-
-    private String mUnaryMinus = "u-";
-
-    private String[] mFunctions = {mSin, mCos, mTan, mLog, mRoot, mFactorial, mLg, mLn, mExp, mAsin, mAcos, mAtan, mSinh, mCosh, mTanh, mAsinh, mAcosh, mAtanh};
-
-    private String mOperations = mPlus + mMinus + mPower + mDivide + mMultiply + mOldDivide + mOldMultiply + mPercent;
-
-    private String mDelimiters = mOperations + mSeparator + mRoot + mPi + mEuler + mOpenBracket + mCloseBracket + mFactorial + mInfinity;
-
-    private Token() {
-        // void
+    public CalculatorTokens() {
+        mInfinity = "∞";
+        mPlus = "+";
+        mMinus = "-";
+        mPower = "^";
+        mDivide = "÷";
+        mMultiply = "×";
+        mOldDivide = "/";
+        mOldMultiply = "*";
+        mLg = "lg";
+        mLn = "ln";
+        mLog = "log";
+        mExp = "exp";
+        mSin = "sin";
+        mCos = "cos";
+        mTan = "tan";
+        mSinh = "sinh";
+        mCosh = "cosh";
+        mTanh = "tanh";
+        mAsin = "asin";
+        mAcos = "acos";
+        mAtan = "atan";
+        mAsinh = "asinh";
+        mAcosh = "acosh";
+        mAtanh = "atanh";
+        mEuler = "e";
+        mPi = "π";
+        mPercent = "%";
+        mRoot = "√";
+        mSeparator = ";";
+        mFactorial = "!";
+        mOpenBracket = "(";
+        mCloseBracket = ")";
+        mUnaryMinus = "u-";
+        mFunctions = new String[]{mSin, mCos, mTan, mLog, mRoot, mFactorial, mLg, mLn, mExp, mAsin, mAcos, mAtan, mSinh, mCosh, mTanh, mAsinh, mAcosh, mAtanh};
+        mOperations = mPlus + mMinus + mPower + mDivide + mMultiply + mOldDivide + mOldMultiply + mPercent;
+        mDelimiters = mOperations + mSeparator + mRoot + mPi + mEuler + mOpenBracket + mCloseBracket + mFactorial + mInfinity;
     }
 
-    public static Token getInstance() {
-        if (instance == null) {
-            instance = new Token();
-        }
-        return instance;
+    public CalculatorTokens(String infinity, String plus, String minus, String power, String divide, String multiply, String oldDivide, String oldMultiply, String lg, String ln, String log, String exp, String sin, String cos, String tan, String sinh, String cosh, String tanh, String asin, String acos, String atan, String asinh, String acosh, String atanh, String euler, String pi, String percent, String root, String separator, String factorial, String openBracket, String closeBracket, String unaryMinus, String[] functions, String operations, String delimiters) {
+        mInfinity = infinity;
+        mPlus = plus;
+        mMinus = minus;
+        mPower = power;
+        mDivide = divide;
+        mMultiply = multiply;
+        mOldDivide = oldDivide;
+        mOldMultiply = oldMultiply;
+        mLg = lg;
+        mLn = ln;
+        mLog = log;
+        mExp = exp;
+        mSin = sin;
+        mCos = cos;
+        mTan = tan;
+        mSinh = sinh;
+        mCosh = cosh;
+        mTanh = tanh;
+        mAsin = asin;
+        mAcos = acos;
+        mAtan = atan;
+        mAsinh = asinh;
+        mAcosh = acosh;
+        mAtanh = atanh;
+        mEuler = euler;
+        mPi = pi;
+        mPercent = percent;
+        mRoot = root;
+        mSeparator = separator;
+        mFactorial = factorial;
+        mOpenBracket = openBracket;
+        mCloseBracket = closeBracket;
+        mUnaryMinus = unaryMinus;
+        mFunctions = functions;
+        mOperations = operations;
+        mDelimiters = delimiters;
     }
 
     public String getInfinity() {

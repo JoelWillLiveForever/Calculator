@@ -1,8 +1,6 @@
 package joel.calculator;
 
 final class MyError {
-    private static MyError instance = null;
-
     public static final byte NO_ERROR = 0x0;
     public static final byte ERROR_DIVISION_BY_ZERO = 0x1;
     public static final byte ERROR_BRACKETS_ARE_NOT_MATCHED = 0x2;
@@ -18,20 +16,15 @@ final class MyError {
     public static final byte ERROR_LN_FUNCTION_DEFINITION_AREA = 0x12;
     public static final byte ERROR_NOT_A_NUMBER = 0x13;
 
-    private final ErrorDescription mErrorDescription = ErrorDescription.getInstance();
-    private final Token mToken = Token.getInstance();
+    private final CalculatorErrorsDescriptions mCalculatorErrorsDescriptions;
+    private final CalculatorTokens mCalculatorTokens;
 
     private byte mErrorCode = 0;
 
-    private MyError() {
-        // void
-    }
-
-    public static MyError getInstance() {
-        if (instance == null) {
-            instance = new MyError();
-        }
-        return instance;
+    // one-time initialization
+    public MyError(CalculatorErrorsDescriptions calculatorErrorsDescriptions, CalculatorTokens calculatorTokens) {
+        mCalculatorErrorsDescriptions = calculatorErrorsDescriptions;
+        mCalculatorTokens = calculatorTokens;
     }
 
     public byte getErrorCode() {
@@ -42,55 +35,51 @@ final class MyError {
         mErrorCode = errorCode;
     }
 
-    public ErrorDescription getErrorDescription() {
-        return mErrorDescription;
-    }
-
     public String getDescription() {
         switch (mErrorCode) {
             case NO_ERROR: {
-                return mErrorDescription.getMagicError();
+                return mCalculatorErrorsDescriptions.getMagicError();
             }
             case ERROR_DIVISION_BY_ZERO: {
-                return mErrorDescription.getDivisionByZeroError();
+                return mCalculatorErrorsDescriptions.getDivisionByZeroError();
             }
             case ERROR_BRACKETS_ARE_NOT_MATCHED: {
-                return mErrorDescription.getBracketsAreNotMatchedError();
+                return mCalculatorErrorsDescriptions.getBracketsAreNotMatchedError();
             }
             case ERROR_NEGATIVE_ARGUMENT_FOR_FACTORIAL: {
-                return mErrorDescription.getNegativeArgumentForFactorialError();
+                return mCalculatorErrorsDescriptions.getNegativeArgumentForFactorialError();
             }
             case ERROR_TAN_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getTan());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getTan());
             }
             case ERROR_ARCSIN_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getAsin());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getAsin());
             }
             case ERROR_ARCCOS_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getAcos());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getAcos());
             }
             case ERROR_ARCCOSH_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getAcosh());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getAcosh());
             }
             case ERROR_ARCTANH_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getAtanh());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getAtanh());
             }
             case ERROR_ROOT_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getRoot());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getRoot());
             }
             case ERROR_LOG_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getLog());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getLog());
             }
             case ERROR_LG_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getLg());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getLg());
             }
             case ERROR_LN_FUNCTION_DEFINITION_AREA: {
-                return mErrorDescription.getDetailedFunctionDefinitionAreaError().replace(ErrorDescription.MARKER, mToken.getLn());
+                return mCalculatorErrorsDescriptions.getDetailedFunctionDefinitionAreaError().replace(CalculatorErrorsDescriptions.MARKER, mCalculatorTokens.getLn());
             }
             case ERROR_NOT_A_NUMBER: {
-                return mErrorDescription.getNotANumberError();
+                return mCalculatorErrorsDescriptions.getNanError();
             }
         }
-        return mErrorDescription.getMagicError();
+        return mCalculatorErrorsDescriptions.getMagicError();
     }
 }
