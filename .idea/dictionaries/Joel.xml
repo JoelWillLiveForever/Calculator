@@ -13,6 +13,7 @@
       <w>asinh</w>
       <w>atan</w>
       <w>atanh</w>
+      <w>jdbc</w>
       <w>sinh</w>
       <w>tanh</w>
     </words>

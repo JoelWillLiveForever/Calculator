@@ -12,16 +12,14 @@ public class Main {
         String expression;
         long time;
 
-        while (true) {
-            expression = in.nextLine();
-            calculator.setExpression(expression);
+        expression = in.nextLine();
+        calculator.setExpression(expression);
 
-            // speed test
-            time = System.nanoTime();
-            System.out.println("Answer:\t" + calculator.getAnswer());
-            time = System.nanoTime() - time;
+        // speed test
+        time = System.nanoTime();
+        System.out.println("Answer:\t" + calculator.getAnswer());
+        time = System.nanoTime() - time;
 
-            System.out.println("Time:\t" + time / 1_000_000.0d + " ms");
-        }
+        System.out.println("Time:\t" + time / 1_000_000.0d + " ms");
     }
 }

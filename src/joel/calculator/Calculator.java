@@ -1,5 +1,9 @@
 package joel.calculator;
 
+import joel.calculator.database.DatabaseHandler;
+
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
@@ -82,7 +86,18 @@ public final class Calculator {
         try {
             result = start();
 
-            int precision = mConfiguration.getPrecision();
+//            int precision = mConfiguration.getPrecision();
+//            double temp = Double.parseDouble(result);
+//
+//            if (temp % 1.0d != 0.0d) {
+//                System.out.println("Before: " + result);
+//                temp *= Math.pow(10.0d, precision);
+//                temp = Math.round(temp);
+//                temp /= Math.pow(10.0d, precision);
+//                result = String.valueOf(temp);
+//                System.out.println("After: " + result);
+//            }
+
         } catch (Exception exc) {
             if (mConfiguration.isErrorCheckerEnabled()) {
                 if (brackets != 0) {
@@ -98,6 +113,20 @@ public final class Calculator {
 
         if (mConfiguration.isHistorySupportEnabled()) {
             mHistory.put(mExpression, result);
+        }
+
+        if (mConfiguration.isHistorySupportEnabled()) {
+            DatabaseHandler dbHandler = new DatabaseHandler();
+            String[] keys = new String[mHistory.getHistory().size()];
+            mHistory.getHistory().keySet().toArray(keys);
+            Date date = new Date();
+
+            System.out.println("Keys: " + Arrays.toString(keys));
+            System.out.println("History: " + mHistory.getHistory().toString());
+
+            for (String key : keys) {
+                dbHandler.signUpHistory(key, mHistory.getHistory().get(key), date);
+            }
         }
 
         return result;
@@ -498,5 +527,24 @@ public final class Calculator {
         }
 
         return mNumbers.pop();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println("Уничтожен!");
+        if (mConfiguration.isHistorySupportEnabled()) {
+            DatabaseHandler dbHandler = new DatabaseHandler();
+            String[] keys = new String[mHistory.getHistory().size()];
+            mHistory.getHistory().keySet().toArray(keys);
+            Date date = new Date();
+
+            System.out.println("Keys: " + Arrays.toString(keys));
+            System.out.println("History: " + mHistory.getHistory().toString());
+
+            for (String key : keys) {
+                dbHandler.signUpHistory(key, mHistory.getHistory().get(key), date);
+            }
+        }
     }
 }
